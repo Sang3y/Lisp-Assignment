@@ -1,0 +1,211 @@
+
+;;Problem 1
+
+(defun my-recursive-remove-element (x y &optional l)
+  
+  (cond ( (null y) nil) 
+        
+        ( (eq (car y) x ) (my-recursive-remove-element x (cdr y)) )  
+        ( (setq l (list(car y))) (append l (my-recursive-remove-element x (cdr y)) )  )   )
+  )
+
+
+;;Problem 2
+
+(defun my-iterative-remove-element (x y &optional z)
+  (loop
+    (if 
+     (eq (car y) x) 
+     (progn
+       (setq y (cdr y))
+       );;true
+     (progn ;;false
+       (setq z (append z (list (car y)))) 
+       (setq y (cdr y))
+       )
+     )
+    (when (= (length y) 0) (return z))))
+
+;;problem 3
+
+(defun my-recursive-remove (x y &optional c d )
+  (cond ( (null y) nil)  
+        ((atom (car y)) 
+         (if (eq (car y) x ) 
+             (my-recursive-remove x (cdr y))  
+             (progn (setq c (list(car y))) (append c (my-recursive-remove x (cdr y)))) )
+         )
+        
+        ( (not(atom (car y))) 
+          (setq d (my-recursive-remove x (car y)))
+          (append (list d) (my-recursive-remove x (cdr y))))  )  )
+
+
+
+;;Problem4
+
+(defun helper-palindrome-recursive(y &optional z )
+  (cond ((null y) nil)
+        ((setq z (append (helper-palindrome-recursive(cdr y))(list(car y)))) )
+        ) 
+  )
+(defun recursive-palindromep (x)
+  (if(equal x (helper-palindrome-recursive x))t nil)
+  )
+
+;;problem5
+(defun helper-iterative-palindrome(y &optional f )
+  (loop    
+    (setq f (append (list(car y)) f) )
+    (setq y (cdr y))
+    (when (null y) (return f)))
+  )
+
+(defun iterative-palindromep (x)
+  (if(equal x (helper-iterative-palindrome x))t nil)
+  )
+
+;;problem6
+(defun flatten(x &optional y  )
+  (cond ((null x ) nil)
+        ( (atom (car x)) 
+          (cond((null (car x))(flatten(cdr x)))
+               ( (setq y (list(car x)))(append y (flatten (cdr x)) )) ))
+        
+        ((not(atom (car x))) 
+         
+         (setq y (flatten(car x)))
+         (append y (flatten (cdr x)) )
+         )
+        )
+  )
+
+    ;Problem 7
+(defun infix (x &optional y (z 1) )
+
+  (cond 
+    ((null (nthcdr z x)) nil)
+    ((atom(car(nthcdr z x))) (setq y (append (list(car(nthcdr z x))) (if(not(null(nthcdr (+ z 1) x)))(list(car x))) (infix x y (+ z 1)))))
+    ((not(atom(car(nthcdr z x)))) (setq y (list (infix (car(nthcdr z x)) y 1)))  (append y (if(not(null(nthcdr (+ z 1) x)))(list (car x))) (infix x y (+ z 1))) )
+    ) 
+  )
+
+------------------------------------------------------------------------------------------------
+Problem #1 – Remove an element from a list using recursion.
+Write a Common Lisp function called my-recursive-remove-element that takes an atom and a list in input, and
+returns a list that is identical to the input list, but with elements equal to the input atom removed, if any. Examples
+of the function in operation are shown below (user input is in red):
+CL-USER> (recursive-remove-element 'b '(a b c b d))
+(a c d)
+CL-USER> (recursive-remove-element 'b '(a c d e f))
+(a c d e f)
+CL-USER> (recursive-remove-element 'a '(b (a d) a d))
+(b (a d) d)
+CL-USER> (recursive-remove-element 'a '())
+nil
+Requirements:
+ You must implement your function without using remove, or related standard Common Lisp functions.
+ You must implement this with a single function (no helper functions).
+ You must implement your function using recursion, not iteration.
+Page 2 of 6
+Problem #2 – Remove an element from a list using iteration.
+Write a Common Lisp function called my-iterative-remove-element that takes an atom and a list in input, and
+returns a list that is identical to the input list, but with elements equal to the input atom removed, if any. Examples
+of the function in operation are shown below (user input is in red):
+CL-USER> (iterative-remove-element 'b '(a b c b d))
+(a c d)
+CL-USER> (iterative-remove-element 'b '(a c d e f))
+(a c d e f)
+CL-USER> (iterative-remove-element 'a '(b (a d) a d))
+(b (a d) d)
+CL-USER> (iterative-remove-element 'a '())
+nil
+Requirements:
+ You must implement your function without using remove, or related standard Common Lisp functions.
+ You must implement this with a single function (no helper functions).
+ You must implement your function using iteration, not recursion.
+Problem #3 – Recursive remove.
+Write a Common Lisp function called my-recursive-remove that takes an atom and a list in input, and returns a
+list that is identical to the input list, but with all occurrences of the input atom removed, if any. Examples of the
+function in operation are shown below (user input is in red):
+CL-USER> (my-recursive-remove 'a '(a b c d))
+(b c d)
+CL-USER> (my-recursive-remove 'a '((a b) a (c d e a) (a a) b))
+((b) (c d e) nil b))
+CL-USER> (my-recursive-remove 'a '((((a)))))
+(((nil)))
+Requirements:
+ You must implement this with a single function (no helper functions).
+ You must implement your function using recursion, not iteration.
+Page 3 of 6
+Problem #4 – Recursive Palindrome.
+Write a Common Lisp function called recursive-palindromep that takes a list as input and returns 't' is the list is a
+palindrome, and 'nil' otherwise. Examples of the function in operation are shown below (user input is in red):
+CL-USER> (recursive-palindromep '(a b b a))
+t
+CL-USER> (recursive-palindromep '(a b c b a))
+t
+CL-USER> (recursive-palindromep '(a b c))
+nil
+CL-USER> (recursive-palindromep '(a (d e) b (d e) a))
+t
+CL-USER> (recursive-palindromep '(a (d e) b (e d) a))
+nil
+Note in the 4th and 5th examples above that we do not look into sublists, meaning that matching sublists in both
+sides of the palindrome must be identical rather than the reverse of each other.
+Requirements:
+ Do not use the built-in reverse function, or any related function.
+ You must implement your function using recursion, not iteration.
+Hint:
+ You may want to define a helper function.
+Page 4 of 6
+Problem #5 – Iterative Palindrome.
+Write a Common Lisp function called iterative-palindromep that takes a list as input and returns 't' is the list is a
+palindrome, and 'nil' otherwise. Examples of the function in operation are shown below (user input is in red):
+CL-USER> (iterative-palindromep '(a b b a))
+t
+CL-USER> (iterative-palindromep '(a b c b a))
+t
+CL-USER> (iterative-palindromep '(a b c))
+nil
+CL-USER> (iterative-palindromep '(a (d e) b (d e) a))
+t
+CL-USER> (iterative-palindromep '(a (d e) b (e d) a))
+nil
+Note in the 4th and 5th examples above that we do not look into sublists, meaning that matching sublists in both
+sides of the palindrome must be identical rather than the reverse of each other.
+Requirements:
+ Do not use the built-in reverse function, or any related function.
+ You must implement your function using iteration, not recursion.
+Hint:
+ You may want to define a helper function.
+Problem #6 – Flatten a list.
+Write a Common Lisp function called flatten that takes a list that may have embedded lists, and returns a flattened
+version of it (i.e., a list whose elements are only atoms and empty lists have been removed). Examples of the
+function in operation (user input is in red):
+CL-USER> (flatten '(a b c d))
+(a b c d)
+CL-USER> (flatten '(a () b (c d)))
+(a b c d)
+CL-USER> (flatten '(a (())))
+(a)
+CL-USER> (flatten '(a (b c) (d e (f) ((((((g)))) h)) i) j (k) l))
+(a b c d e f g h i j k l)
+Requirements:
+ You must implement your function using recursion, not iteration.
+ You must implement this with a single function (no helper functions).
+Page 5 of 6
+Problem #7 – Prefix to Infix.
+In Common Lisp arithmetic expressions are written with the prefix notation. Write an infix function that takes as
+input a list that is a valid prefix arithmetic expression and return a list that is the corresponding, fully
+parenthesized, infix expression. Examples of the function in operation are shown below (user input is in red):
+CL-USER> (infix '(+ 2 3))
+(2 + 3)
+CL-USER> (infix '(+ 2 x (* y 3)))
+(2 + x + (y * 3))
+CL-USER> (infix '(+ 2 x (* y (- z 3) 4)))
+(2 + x + (y * (z - 3) * 4))
+Requirements:
+ You must implement your function using recursion, not iteration
+--------------------------------------------------------------------------------------
+
